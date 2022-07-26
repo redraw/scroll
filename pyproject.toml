@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "scroll-term"
-version = "0.1.0"
+version = "0.1.1"
 description = "scroll stdout!"
 homepage = "https://github.com/redraw/scroll"
 authors = ["redraw <redraw@sdf.org>"]
