@@ -1,5 +1,7 @@
 # scroll
 
+[![asciicast](https://asciinema.org/a/511036.svg)](https://asciinema.org/a/511036)
+
 ## Install
 ```
 pip install scroll-term
