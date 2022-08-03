@@ -13,18 +13,23 @@ def print_buffer(buffer: deque):
         sys.stdout.write(f"{item}\033[K")
 
 
-def scroll(file: TextIO, delay: float = 0, max_lines: int = 10):
+def scroll(file: TextIO, delay: float = 0, max_lines: int = 10, skip_lines: int = 0):
     term_size = os.get_terminal_size()
-    max_lines = max_lines or term_size.lines
+    total_lines = (max_lines or term_size.lines) - skip_lines
 
-    buffer = deque(["\n"] * max_lines, maxlen=max_lines)
+    # print header
+    for _ in range(skip_lines):
+        line = next(file)
+        sys.stdout.write(line)
+
+    buffer = deque(["\n"] * total_lines, maxlen=total_lines)
     # move cursor down
     print_buffer(buffer)
 
     for line in file:
         buffer.append(next(iter(textwrap.wrap(str(line), width=term_size.columns - 1)), "") + "\n")
         # move cursor up
-        sys.stdout.write(f"\033[{max_lines}A\033[K")
+        sys.stdout.write(f"\033[{total_lines}A\033[K")
         # print buffer
         print_buffer(buffer)
         # add delay
@@ -36,13 +41,8 @@ def main():
     parser = argparse.ArgumentParser(description="Scroll through stdout!")
     parser.add_argument("-d", "--delay", type=float, default=0, help="delay in seconds between lines (default 0)")
     parser.add_argument("-l", "--lines", type=int, default=10, help="max lines, set to 0 for full screen (default 10)")
-    parser.add_argument(
-        "file",
-        nargs="?",
-        type=argparse.FileType("r"),
-        default=sys.stdin,
-        help="file, defaults to stdin",
-    )
+    parser.add_argument("--skip", type=int, default=0, help="header lines to skip from scrolling")
+    parser.add_argument( "file", nargs="?", type=argparse.FileType("r"), default=sys.stdin, help="file, defaults to stdin")
     args = parser.parse_args()
 
     try:
@@ -50,6 +50,7 @@ def main():
             file=args.file,
             delay=args.delay,
             max_lines=args.lines,
+            skip_lines=args.skip,
         )
     except KeyboardInterrupt:
         pass
