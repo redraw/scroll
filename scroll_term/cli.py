@@ -13,12 +13,12 @@ def print_buffer(buffer: deque):
         sys.stdout.write(f"{item}\033[K")
 
 
-def scroll(file: TextIO, delay: float = 0, max_lines: int = 10, skip_lines: int = 0):
+def scroll(file: TextIO, delay: float = 0, max_lines: int = 10, fix_lines: int = 0):
     term_size = os.get_terminal_size()
-    total_lines = (max_lines or term_size.lines) - skip_lines
+    total_lines = (max_lines or term_size.lines) - fix_lines
 
     # print header
-    for _ in range(skip_lines):
+    for _ in range(fix_lines):
         line = next(file)
         sys.stdout.write(line)
 
@@ -41,7 +41,7 @@ def main():
     parser = argparse.ArgumentParser(description="Scroll through stdout!")
     parser.add_argument("-d", "--delay", type=float, default=0, help="delay in seconds between lines (default 0)")
     parser.add_argument("-l", "--lines", type=int, default=10, help="max lines, set to 0 for full screen (default 10)")
-    parser.add_argument("--skip", type=int, default=0, help="header lines to skip from scrolling")
+    parser.add_argument("-f", "--fix", type=int, default=0, help="fix first x lines while scrolling")
     parser.add_argument( "file", nargs="?", type=argparse.FileType("r"), default=sys.stdin, help="file, defaults to stdin")
     args = parser.parse_args()
 
@@ -50,7 +50,7 @@ def main():
             file=args.file,
             delay=args.delay,
             max_lines=args.lines,
-            skip_lines=args.skip,
+            fix_lines=args.fix,
         )
     except KeyboardInterrupt:
         pass
